@@ -1,0 +1,118 @@
+import os
+import json
+from utils import load_key_from_file, text_to_int, int_to_text
+from crypto.rsa import encrypt as rsa_encrypt, decrypt as rsa_decrypt
+
+USERS_FILE = 'storage/users.json'
+KEYS_DIR = 'storage/keys'
+OUTPUT_DIR = 'storage/messages' 
+
+def _ensure_output_dir():
+    if not os.path.exists(OUTPUT_DIR):
+        os.makedirs(OUTPUT_DIR)
+
+def _load_users():
+    with open(USERS_FILE, 'r') as f:
+        return json.load(f)
+
+def _get_public_key(username):
+    users = _load_users()
+    if username not in users:
+        raise ValueError(f"User '{username}' not found")
+    pub = users[username]['public_key']
+    return int(pub['e']), int(pub['n'])
+
+def _get_private_key(username):
+    key_path = f"{KEYS_DIR}/{username}.priv"
+    priv = load_key_from_file(key_path)
+    return {'d': int(priv['d']), 'n': int(priv['n'])}
+
+def _load_plaintext(infile=None, text=None):
+    if text is not None:
+        return text.encode('utf-8')
+    elif infile:
+        # Load from the messages folder if just filename is provided
+        infile_path = infile if os.path.isabs(infile) else os.path.join(OUTPUT_DIR, infile)
+        with open(infile_path, 'rb') as f:
+            return f.read()
+    else:
+        raise ValueError("No plaintext input provided")
+
+def _encrypt_with_pubkey(pub_key, plaintext: bytes) -> str:
+    message_int = int.from_bytes(plaintext, byteorder='big')
+    ciphertext_int = rsa_encrypt(message_int, pub_key)
+    return hex(ciphertext_int)
+
+def _save_ciphertext(ciphertext_hex, output_path):
+    _ensure_output_dir()
+    # If output_path is just a filename, prepend the output directory
+    full_path = output_path if os.path.isabs(output_path) else os.path.join(OUTPUT_DIR, output_path)
+    with open(full_path, 'w') as f:
+        f.write(ciphertext_hex)
+    print(f"[+] Ciphertext saved to '{full_path}'")
+    print("[+] Ciphertext (hex):")
+    print(ciphertext_hex)
+
+def encrypt_message(to_username, input_data, output_path, algorithm, is_text=False):
+    if algorithm != 'rsa':
+        raise NotImplementedError(f"Algorithm '{algorithm}' not supported yet.")
+    
+    pub_key = _get_public_key(to_username)
+    plaintext = _load_plaintext(text=input_data if is_text else None,
+                                infile=input_data if not is_text else None)
+    ciphertext_hex = _encrypt_with_pubkey(pub_key, plaintext)
+    _save_ciphertext(ciphertext_hex, output_path)
+
+def encrypt_message_with_pubkey(pubkey_path, infile, text, output_path, algorithm):
+    if algorithm != 'rsa':
+        raise NotImplementedError(f"Algorithm '{algorithm}' not supported for direct public key encryption yet.")
+
+    with open(pubkey_path, 'r') as f:
+        pubkey_data = json.load(f)
+    pub_key = (int(pubkey_data['e']), int(pubkey_data['n']))
+
+    plaintext = _load_plaintext(text=text, infile=infile)
+    ciphertext_hex = _encrypt_with_pubkey(pub_key, plaintext)
+    _save_ciphertext(ciphertext_hex, output_path)
+
+def encrypt_message_with_pubkey_direct(e, n, infile, text, output_path, algorithm):
+    if algorithm != 'rsa':
+        raise NotImplementedError(f"Algorithm '{algorithm}' not supported for direct public key encryption yet.")
+
+    pub_key = (e, n)
+    plaintext = _load_plaintext(text=text, infile=infile)
+    ciphertext_hex = _encrypt_with_pubkey(pub_key, plaintext)
+    _save_ciphertext(ciphertext_hex, output_path)
+
+def decrypt_message(username, infile=None, cipher_hex=None, outfile=None):
+    priv_key = _get_private_key(username)
+
+    if infile:
+        infile_path = infile if os.path.isabs(infile) else os.path.join(OUTPUT_DIR, infile)
+        with open(infile_path, 'r') as f:
+            ciphertext_hex = f.read().strip()
+    elif cipher_hex:
+        ciphertext_hex = cipher_hex.strip()
+    else:
+        raise ValueError("No ciphertext input provided")
+
+    ciphertext_int = int(ciphertext_hex, 16) if ciphertext_hex.startswith("0x") else int(ciphertext_hex)
+    plaintext_int = rsa_decrypt(ciphertext_int, (priv_key['d'], priv_key['n']))
+    plaintext = int_to_text(plaintext_int)
+
+    if outfile:
+        _ensure_output_dir()
+        outfile_path = outfile if os.path.isabs(outfile) else os.path.join(OUTPUT_DIR, outfile)
+        with open(outfile_path, 'w', encoding='utf-8') as f:
+            f.write(plaintext)
+        print(f"[+] Message decrypted and saved to '{outfile_path}'")
+
+    print("[+] Decrypted plaintext:")
+    print(plaintext)
+
+# Placeholders
+def sign_message(*args, **kwargs):
+    print("[!] Signing not implemented yet.")
+
+def verify_signature(*args, **kwargs):
+    print("[!] Verification not implemented yet.")

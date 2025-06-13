@@ -1,4 +1,5 @@
 import random
+import json
 def gcd(a, b):
     while b:
         a, b = b, a % b
@@ -68,3 +69,13 @@ def int_to_text(number):
 
 def text_to_int(text):
     return int.from_bytes(text.encode('utf-8'), byteorder='big')
+
+
+
+def save_key_to_file(key_dict, path):
+    with open(path, 'w') as f:
+        json.dump(key_dict, f, indent=2)
+
+def load_key_from_file(path):
+    with open(path, 'r') as f:
+        return json.load(f)
