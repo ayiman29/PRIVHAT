@@ -1,0 +1,16 @@
+storage/keys/
+storage/users.json
+venv/
+.env/
+.env.*
+.vscode/
+.idea/
+*.sig
+*.enc
+*.dec
+*.log
+*.tmp
+*.pem
+*.json
+.DS_Store
+Thumbs.db
