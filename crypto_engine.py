@@ -2,10 +2,11 @@ import os
 import json
 from utils import load_key_from_file, text_to_int, int_to_text
 from crypto.rsa import encrypt as rsa_encrypt, decrypt as rsa_decrypt
+import base64
 
 USERS_FILE = 'storage/users.json'
 KEYS_DIR = 'storage/keys'
-OUTPUT_DIR = 'storage/messages' 
+OUTPUT_DIR = 'storage/messages'
 
 def _ensure_output_dir():
     if not os.path.exists(OUTPUT_DIR):
@@ -31,7 +32,6 @@ def _load_plaintext(infile=None, text=None):
     if text is not None:
         return text.encode('utf-8')
     elif infile:
-        # Load from the messages folder if just filename is provided
         infile_path = infile if os.path.isabs(infile) else os.path.join(OUTPUT_DIR, infile)
         with open(infile_path, 'rb') as f:
             return f.read()
@@ -45,7 +45,11 @@ def _encrypt_with_pubkey(pub_key, plaintext: bytes) -> str:
 
 def _save_ciphertext(ciphertext_hex, output_path):
     _ensure_output_dir()
-    # If output_path is just a filename, prepend the output directory
+    if output_path is None:
+        print("[+] Ciphertext (hex):")
+        print(ciphertext_hex)
+        return
+
     full_path = output_path if os.path.isabs(output_path) else os.path.join(OUTPUT_DIR, output_path)
     with open(full_path, 'w') as f:
         f.write(ciphertext_hex)
@@ -84,19 +88,24 @@ def encrypt_message_with_pubkey_direct(e, n, infile, text, output_path, algorith
     ciphertext_hex = _encrypt_with_pubkey(pub_key, plaintext)
     _save_ciphertext(ciphertext_hex, output_path)
 
-def decrypt_message(username, infile=None, cipher_hex=None, outfile=None):
+def decrypt_message(username, infile=None, cipher_hex_or_b64=None, outfile=None):
     priv_key = _get_private_key(username)
 
     if infile:
         infile_path = infile if os.path.isabs(infile) else os.path.join(OUTPUT_DIR, infile)
         with open(infile_path, 'r') as f:
-            ciphertext_hex = f.read().strip()
-    elif cipher_hex:
-        ciphertext_hex = cipher_hex.strip()
+            ciphertext_str = f.read().strip()
+    elif cipher_hex_or_b64:
+        ciphertext_str = cipher_hex_or_b64.strip()
     else:
         raise ValueError("No ciphertext input provided")
 
-    ciphertext_int = int(ciphertext_hex, 16) if ciphertext_hex.startswith("0x") else int(ciphertext_hex)
+    try:
+        decoded_bytes = base64.b64decode(ciphertext_str, validate=True)
+        ciphertext_int = int.from_bytes(decoded_bytes, byteorder='big')
+    except (base64.binascii.Error, ValueError):
+        ciphertext_int = int(ciphertext_str, 16) if ciphertext_str.startswith("0x") else int(ciphertext_str)
+
     plaintext_int = rsa_decrypt(ciphertext_int, (priv_key['d'], priv_key['n']))
     plaintext = int_to_text(plaintext_int)
 

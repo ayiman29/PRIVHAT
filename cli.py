@@ -1,3 +1,5 @@
+import os
+import json
 import argparse
 from colorama import Fore, Style, init
 from user_manager import create_user, import_public_key, delete_user
@@ -10,6 +12,14 @@ from crypto_engine import (
     encrypt_message_with_pubkey_direct
 )
 
+def ensure_storage():
+    os.makedirs('storage/keys', exist_ok=True)
+    os.makedirs('storage/messages', exist_ok=True)
+    users_file = 'storage/users.json'
+    if not os.path.exists(users_file):
+        with open(users_file, 'w') as f:
+            json.dump({}, f)
+
 def print_banner():
     init(autoreset=True)
     banner = r'''
@@ -18,16 +28,16 @@ def print_banner():
   / /_/ / /_/ // / | | / /  / /_/ / /| | / /   
  / ____/ _, _// /  | |/ /  / __  / ___ |/ /    
 /_/   /_/ |_/___/  |___/  /_/ /_/_/  |_/_/     
-                                               
+
 '''
     print(Fore.CYAN + Style.BRIGHT + banner)
     print(Fore.YELLOW + "           Made by ayiman29\n" + Style.RESET_ALL)
 
 def main():
-    print_banner()  
-    
-    parser = argparse.ArgumentParser(prog='PRIVHAT', description='Cryptography CLI Tool')
+    ensure_storage()
+    print_banner()
 
+    parser = argparse.ArgumentParser(prog='PRIVHAT', description='Cryptography CLI Tool')
     subparsers = parser.add_subparsers(dest='command')
 
     # Create user
@@ -57,7 +67,7 @@ def main():
     group_encrypt_input.add_argument('--in', dest='infile', help="Input file containing plaintext")
     group_encrypt_input.add_argument('--text', help="Plaintext message directly as argument")
 
-    parser_encrypt.add_argument('--out', required=True)
+    parser_encrypt.add_argument('--out', help='Output file to save ciphertext (optional). If omitted, prints to stdout.')
     parser_encrypt.add_argument('--alg', choices=['rsa', 'ecc', 'elgamal', 'hybrid'], required=True)
 
     # Decrypt
