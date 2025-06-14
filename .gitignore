@@ -16,3 +16,5 @@ venv/
 Thumbs.db
 storage/messages/
 __pycache__
+dist/
+*.egg-info/
