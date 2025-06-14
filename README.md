@@ -28,34 +28,63 @@ Privhat is a lightweight **command-line cryptography tool** written in Python th
 
 ## Installation
 
+### Option 1: Install via PyPI (Recommended for end users)
+
+You can install Privhat directly using `pip`:
+
+```bash
+pip install privhat
+```
+
+After installation, you can run the CLI using:
+
+```bash
+privhat --help
+```
+
+---
+
+### Option 2: Install from source (For developers/contributors)
+
 1. Clone this repository:
 
 ```bash
 git clone https://github.com/yourusername/privhat.git
 cd privhat
-````
+```
 
-2. (Optional) Create and activate a Python virtual environment:
+2. (Optional but recommended) Create and activate a Python virtual environment:
 
 ```bash
+# Linux/macOS
 python -m venv venv
-source venv/bin/activate   # Linux/macOS
-venv\Scripts\activate      # Windows
+source venv/bin/activate
+
+# Windows
+python -m venv venv
+venv\Scripts\activate
 ```
 
-3. Install dependencies:
+3. Install the package in editable/development mode with dependencies:
 
 ```bash
-pip install -r requirements.txt
+pip install -e .
 ```
+
+This will let you make changes to the codebase and instantly test them using the CLI:
+
+```bash
+privhat --help
+```
+
 ---
 
-## 🛠️ Usage
+### Note
 
-Run the CLI tool using Python:
+If you encounter issues related to permissions or pip cache, try:
 
 ```bash
-python privhat.py [command] [options]
+pip install --upgrade pip setuptools wheel
 ```
 
 ### 📋 Commands
