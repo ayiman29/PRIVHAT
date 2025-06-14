@@ -55,7 +55,7 @@ pip install -r requirements.txt
 Run the CLI tool using Python:
 
 ```bash
-python cli.py [command] [options]
+python privat.py [command] [options]
 ```
 
 ### Commands
@@ -74,7 +74,7 @@ python cli.py [command] [options]
 ### 🔐 Encrypt
 
 ```bash
-python cli.py encrypt [OPTIONS]
+python privhat.py encrypt [OPTIONS]
 ```
 
 #### Options:
@@ -95,44 +95,44 @@ python cli.py encrypt [OPTIONS]
 **1. Encrypt Text to a User (stored public key)**
 
 ```bash
-python cli.py encrypt --to alice --text "Hello Alice" --out hello.enc --alg rsa
+python privhat.py encrypt --to alice --text "Hello Alice" --out hello.enc --alg rsa
 ```
 
 **2. Encrypt a File to a User**
 
 ```bash
-python cli.py encrypt --to alice --in notes.txt --out notes.enc --alg rsa
+python privhat.py encrypt --to alice --in notes.txt --out notes.enc --alg rsa
 ```
 
 **3. Encrypt Text with a Public Key File**
 
 ```bash
-python cli.py encrypt --pubkey-file keys/bob_pubkey.json --text "Secret message" --out msg.enc --alg rsa
+python privhat.py encrypt --pubkey-file keys/bob_pubkey.json --text "Secret message" --out msg.enc --alg rsa
 ```
 
 **4. Encrypt File with a Public Key File**
 
 ```bash
-python cli.py encrypt --pubkey-file keys/bob_pubkey.json --in doc.txt --out doc.enc --alg rsa
+python privhat.py encrypt --pubkey-file keys/bob_pubkey.json --in doc.txt --out doc.enc --alg rsa
 ```
 
 **5. Encrypt Text and Output to Stdout**
 
 ```bash
-python cli.py encrypt --to alice --text "Just display this" --alg rsa
+python privhat.py encrypt --to alice --text "Just display this" --alg rsa
 ```
 
 **6. Encrypt Text Using Raw Public Key Components**
 
 ```bash
-python cli.py encrypt --pubkey-e 65537 --pubkey-n 123456789123456789123456789 --text "Hello from raw key" --out out.enc --alg rsa
+python privhat.py encrypt --pubkey-e 65537 --pubkey-n 123456789123456789123456789 --text "Hello from raw key" --out out.enc --alg rsa
 ```
 ---
 
 ### 🔓 Decrypt
 
 ```bash
-python cli.py decrypt [OPTIONS]
+python privhat.py decrypt [OPTIONS]
 ```
 
 #### Options:
@@ -151,13 +151,13 @@ python cli.py decrypt [OPTIONS]
 **1. Decrypt File and Save Output**
 
 ```bash
-python cli.py decrypt --user alice --in hello.enc --out hello.txt
+python privhat.py decrypt --user alice --in hello.enc --out hello.txt
 ```
 
 **2. Decrypt Ciphertext Hex String**
 
 ```bash
-python cli.py decrypt --user iloveglass2 --cipher "12345...."
+python privhat.py decrypt --user iloveglass2 --cipher "12345...."
 ```
 
 ---
@@ -187,7 +187,7 @@ python cli.py decrypt --user iloveglass2 --cipher "12345...."
 ```
 privhat/
 │
-├── cli.py                  # Main CLI entry point
+├── privhat.py                  # Main CLI entry point
 ├── crypto_engine.py        # Core crypto operations
 ├── user_manager.py         # User and key management
 ├── storage/
