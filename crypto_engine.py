@@ -122,41 +122,62 @@ def decrypt_message(username, infile=None, cipher_hex_or_b64=None, outfile=None)
     print("[+] Decrypted plaintext:")
     print(plaintext)
 
-def sign_message(username, infile, outfile, algorithm):
+def sign_message(username, infile, outfile, algorithm, text=None):
     if algorithm != 'rsa':
         raise NotImplementedError(f"Algorithm '{algorithm}' not supported for signing yet.")
 
     priv_key = _get_private_key(username)
-    
-    input_path = infile if os.path.isabs(infile) else os.path.join(OUTPUT_DIR, infile)
-    with open(input_path, 'r', encoding='utf-8') as f:
-        message = f.read()
+
+    if text is not None:
+        message = text
+    else:
+        input_path = infile if os.path.isabs(infile) else os.path.join(OUTPUT_DIR, infile)
+        with open(input_path, 'r', encoding='utf-8', errors='replace') as f:
+            message = f.read()
 
     signature = rsa_sign(message, (priv_key['d'], priv_key['n']))
-    
-    _ensure_output_dir()
-    output_path = outfile if os.path.isabs(outfile) else os.path.join(OUTPUT_DIR, outfile)
-    with open(output_path, 'w') as f:
-        f.write(str(signature))
 
-    print(f"[+] Signature saved to '{output_path}'")
+    if outfile:
+        _ensure_output_dir()
+        output_path = outfile if os.path.isabs(outfile) else os.path.join(OUTPUT_DIR, outfile)
+        with open(output_path, 'w') as f:
+            f.write(str(signature))
+        print(f"[+] Signature saved to '{output_path}'")
+
+    print("[+] Signature (int):")
+    print(signature)
 
 
-def verify_signature(username, infile, sigfile, algorithm):
+
+
+def verify_signature(username, infile=None, sigfile=None, sig_str=None, algorithm='rsa', text=None):
     if algorithm != 'rsa':
         raise NotImplementedError(f"Algorithm '{algorithm}' not supported for verification yet.")
 
     pub_key = _get_public_key(username)
 
-    input_path = infile if os.path.isabs(infile) else os.path.join(OUTPUT_DIR, infile)
-    with open(input_path, 'r', encoding='utf-8') as f:
-        message = f.read()
+    if text is not None:
+        message = text
+    else:
+        input_path = infile if os.path.isabs(infile) else os.path.join(OUTPUT_DIR, infile)
+        with open(input_path, 'r', encoding='utf-8') as f:
+            message = f.read()
 
-    sig_path = sigfile if os.path.isabs(sigfile) else os.path.join(OUTPUT_DIR, sigfile)
-    with open(sig_path, 'r') as f:
-        signature = int(f.read().strip())
+    # Load signature either from sigfile or from sig_str
+    if sigfile is not None:
+        sig_path = sigfile if os.path.isabs(sigfile) else os.path.join(OUTPUT_DIR, sigfile)
+        with open(sig_path, 'r') as f:
+            signature = int(f.read().strip())
+    elif sig_str is not None:
+        try:
+            signature = int(sig_str.strip())
+        except Exception:
+            raise ValueError("Signature string must be an integer.")
+    else:
+        raise ValueError("No signature provided for verification.")
 
     is_valid = rsa_verify(message, signature, pub_key)
 
     print("[+] Signature is VALID" if is_valid else "[!] Signature is INVALID")
+
 

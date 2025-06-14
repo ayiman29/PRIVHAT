@@ -81,16 +81,29 @@ def main():
     # Sign
     parser_sign = subparsers.add_parser('sign')
     parser_sign.add_argument('--user', required=True)
-    parser_sign.add_argument('--in', dest='infile', required=True)
-    parser_sign.add_argument('--out', required=True)
+
+    group_sign_input = parser_sign.add_mutually_exclusive_group(required=True)
+    group_sign_input.add_argument('--in', dest='infile', help='Input file to sign')
+    group_sign_input.add_argument('--text', help='Plaintext message to sign directly')
+
+    parser_sign.add_argument('--out', help='(Optional) Output file to save signature')
     parser_sign.add_argument('--alg', choices=['rsa', 'ecdsa'], required=True)
+
 
     # Verify
     parser_verify = subparsers.add_parser('verify')
     parser_verify.add_argument('--from', dest='username', required=True)
-    parser_verify.add_argument('--in', dest='infile', required=True)
-    parser_verify.add_argument('--sig', required=True)
+
+    group_input = parser_verify.add_mutually_exclusive_group(required=True)
+    group_input.add_argument('--in', dest='infile', help='Input file containing message')
+    group_input.add_argument('--text', help='Plain text message to verify signature against')
+
+    group_sig_input = parser_verify.add_mutually_exclusive_group(required=True)
+    group_sig_input.add_argument('--sig', help='Signature file path')
+    group_sig_input.add_argument('--cipher', help='Signature string directly')
+
     parser_verify.add_argument('--alg', choices=['rsa', 'ecdsa'], required=True)
+
 
     args = parser.parse_args()
 
@@ -126,10 +139,10 @@ def main():
         decrypt_message(args.user, args.infile, args.cipher, args.out)
 
     elif args.command == 'sign':
-        sign_message(args.user, args.infile, args.out, args.alg)
+        sign_message(args.user, args.infile, args.out, args.alg, text=args.text)
 
     elif args.command == 'verify':
-        verify_signature(args.username, args.infile, args.sig, args.alg)
+        verify_signature(username=args.username, infile=args.infile, sigfile=args.sig, sig_str=args.cipher, algorithm=args.alg, text=args.text)
 
     else:
         parser.print_help()
