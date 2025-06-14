@@ -1,7 +1,7 @@
 # rsa_signature.py
 
-from rsa import encrypt, decrypt, generate_keypair
-from sha256 import sha256
+from crypto.rsa import encrypt, decrypt, generate_keypair
+from crypto.sha256 import sha256
 
 def sign(message_text, private_key):
     """
@@ -32,19 +32,3 @@ def verify(message_text, signature, public_key):
     recovered_hash_int = encrypt(signature, public_key)
     return recovered_hash_int == hashed_int
     
-
-# Example usage section (optional)
-if __name__ == "__main__":
-    # 1. Generate RSA keys (or load if you have saved keys)
-    public_key, private_key = generate_keypair(1024)
-    
-    # 2. Sample message to sign
-    message = "Hello, RSA Signature!"
-    
-    # 3. Sign the message with private key
-    signature = sign(message, private_key)
-    print(f"Signature (int): {signature}")
-    
-    # 4. Verify the signature with public key
-    valid = verify(message, signature, public_key)
-    print(f"Signature valid? {valid}")
