@@ -7,7 +7,7 @@ name = "privhat"
 version = "0.1.0"
 description = "Cryptography CLI Tool"
 authors = [
-  { name="ayiman29" }
+  { name = "ayiman29" }
 ]
 readme = "README.md"
 requires-python = ">=3.7"
@@ -22,5 +22,6 @@ classifiers = [
 [project.scripts]
 privhat = "privhat:main"
 
-[project.dependencies]
-colorama = "*"
+dependencies = [
+  "colorama"
+]
