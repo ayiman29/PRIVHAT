@@ -3,6 +3,9 @@ import json
 from utils import load_key_from_file, text_to_int, int_to_text
 from crypto.rsa import encrypt as rsa_encrypt, decrypt as rsa_decrypt
 import base64
+from crypto.signature import sign as rsa_sign, verify as rsa_verify
+from crypto.sha256 import sha256
+
 
 USERS_FILE = 'storage/users.json'
 KEYS_DIR = 'storage/keys'
@@ -119,9 +122,41 @@ def decrypt_message(username, infile=None, cipher_hex_or_b64=None, outfile=None)
     print("[+] Decrypted plaintext:")
     print(plaintext)
 
-# Placeholders
-def sign_message(*args, **kwargs):
-    print("[!] Signing not implemented yet.")
+def sign_message(username, infile, outfile, algorithm):
+    if algorithm != 'rsa':
+        raise NotImplementedError(f"Algorithm '{algorithm}' not supported for signing yet.")
 
-def verify_signature(*args, **kwargs):
-    print("[!] Verification not implemented yet.")
+    priv_key = _get_private_key(username)
+    
+    input_path = infile if os.path.isabs(infile) else os.path.join(OUTPUT_DIR, infile)
+    with open(input_path, 'r', encoding='utf-8') as f:
+        message = f.read()
+
+    signature = rsa_sign(message, (priv_key['d'], priv_key['n']))
+    
+    _ensure_output_dir()
+    output_path = outfile if os.path.isabs(outfile) else os.path.join(OUTPUT_DIR, outfile)
+    with open(output_path, 'w') as f:
+        f.write(str(signature))
+
+    print(f"[+] Signature saved to '{output_path}'")
+
+
+def verify_signature(username, infile, sigfile, algorithm):
+    if algorithm != 'rsa':
+        raise NotImplementedError(f"Algorithm '{algorithm}' not supported for verification yet.")
+
+    pub_key = _get_public_key(username)
+
+    input_path = infile if os.path.isabs(infile) else os.path.join(OUTPUT_DIR, infile)
+    with open(input_path, 'r', encoding='utf-8') as f:
+        message = f.read()
+
+    sig_path = sigfile if os.path.isabs(sigfile) else os.path.join(OUTPUT_DIR, sigfile)
+    with open(sig_path, 'r') as f:
+        signature = int(f.read().strip())
+
+    is_valid = rsa_verify(message, signature, pub_key)
+
+    print("[+] Signature is VALID" if is_valid else "[!] Signature is INVALID")
+
