@@ -106,6 +106,9 @@ def main():
 
 
     args = parser.parse_args()
+    if args.command == 'encrypt':
+        if args.pubkey_e and not args.pubkey_n:
+            parser.error("--pubkey-n is required when --pubkey-e is used")
 
     if args.command == 'create-user':
         create_user(args.username, args.alg)
