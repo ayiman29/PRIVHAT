@@ -50,25 +50,39 @@ pip install -r requirements.txt
 ```
 ---
 
-## Usage
+## 🛠️ Usage
 
 Run the CLI tool using Python:
 
 ```bash
-python privat.py [command] [options]
+python privhat.py [command] [options]
 ```
 
-### Commands
+### 📋 Commands
 
-* `create-user <username> --alg rsa|ecc|elgamal`
-  Create a new user with specified algorithm.
+#### 👤 Create User
 
-* `delete-user <username>`
-  Delete an existing user.
+Create a new user and generate a key pair:
 
-* `import-pubkey <username> --e <int> --n <int>`
-  Import a public key for a user.
+```bash
+python privhat.py create-user <username> --alg rsa|ecc|elgamal
+```
 
+#### ❌ Delete User
+
+Delete an existing user and their stored keys:
+
+```bash
+python privhat.py delete-user <username>
+```
+
+#### 📥 Import Public Key
+
+Import an RSA public key manually:
+
+```bash
+python privhat.py import-pubkey <username> --e <int> --n <int>
+```
 ---
 
 ### 🔐 Encrypt
@@ -179,7 +193,99 @@ python privhat.py decrypt --user iloveglass2 --cipher "12345...."
 
 ---
 
-* `sign` and `verify` (Coming soon!)
+### ✍️ Sign
+
+```
+python privhat.py sign [OPTIONS]
+```
+
+#### Options:
+
+| Option                 | Description                                     |
+| ---------------------- | ----------------------------------------------- |
+| `--user <username>`    | Username whose private key will be used to sign |
+| `--in <file>`          | File containing message to sign                 |
+| `--text <string>`      | Plaintext message to sign directly              |
+| `--out <file>`         | Output file to save the signature (optional)    |
+| `--alg <rsa \| ecdsa>` | Algorithm to use for signing (`rsa` or `ecdsa`) |
+
+#### ✅ Sign Examples
+
+**1. Sign Text Message and Save Signature**
+
+```bash
+python privhat.py sign --user alice --text "This is a signed message." --out sig.txt --alg rsa
+```
+
+**2. Sign File and Save Signature**
+
+```bash
+python privhat.py sign --user bob --in important.txt --out important.sig --alg rsa
+```
+
+**3. Sign Text Message and Output to Stdout**
+
+```bash
+python privhat.py sign --user alice --text "Ephemeral signature" --alg rsa
+```
+
+---
+
+### ✅ Verify
+
+```bash
+python privhat.py verify [OPTIONS]
+```
+
+#### Options:
+
+| Option                 | Description                                             |
+| ---------------------- | ------------------------------------------------------- |
+| `--from <username>`    | Username whose public key will be used for verification |
+| `--in <file>`          | Input file containing the original message              |
+| `--text <string>`      | Message to verify directly as string                    |
+| `--sig <file>`         | Signature file path                                     |
+| `--cipher <string>`    | Signature directly as string (e.g. from stdout)         |
+| `--alg <rsa \| ecdsa>` | Algorithm used for signature (`rsa` or `ecdsa`)         |
+
+#### ✅ Verify Examples
+
+**1. Verify Text and Signature File**
+
+```bash
+python privhat.py verify --from alice --text "This is a signed message." --sig sig.txt --alg rsa
+```
+
+**2. Verify File and Signature File**
+
+```bash
+python privhat.py verify --from bob --in important.txt --sig important.sig --alg rsa
+```
+
+**3. Verify Text and Signature String**
+
+```bash
+python privhat.py verify --from alice --text "Hello world" --cipher "abc123def456..." --alg rsa
+```
+
+**4. Verify File with Inline Signature String**
+
+```bash
+python privhat.py verify --from bob --in statement.txt --cipher "abcd1234..." --alg rsa
+```
+
+---
+
+### 🔁 Summary Matrix
+
+| Use Case                   | Sign Command                   | Verify Command                                        |
+| -------------------------- | ------------------------------ | ----------------------------------------------------- |
+| Sign text to stdout        | `--text <string>`              | *N/A*                                                 |
+| Sign text and save to file | `--text <string> --out <file>` | `--text <string> --sig <file>` or `--cipher <string>` |
+| Sign file and save to file | `--in <file> --out <file>`     | `--in <file> --sig <file>` or `--cipher <string>`     |
+| Verify text with signature | *N/A*                          | `--text <string> --sig <file>` or `--cipher <string>` |
+| Verify file with signature | *N/A*                          | `--in <file> --sig <file>` or `--cipher <string>`     |
+
 ---
 
 ## Directory Structure
@@ -203,6 +309,5 @@ privhat/
 ## Notes
 
 * Current implementation supports RSA fully; ECC and ElGamal are in progress.
-* Signing and verifying signatures will be implemented soon.
 
 ---
