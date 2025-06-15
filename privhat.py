@@ -55,6 +55,9 @@ def main():
     parser_import.add_argument('--e', type=int, required=True, help='Public exponent')
     parser_import.add_argument('--n', type=int, required=True, help='Public modulus')
 
+    # List user
+    parser_list = subparsers.add_parser('list-users', help='List all users and their key status')
+
     # Encrypt
     parser_encrypt = subparsers.add_parser('encrypt')
     group_target = parser_encrypt.add_mutually_exclusive_group(required=True)
@@ -118,6 +121,10 @@ def main():
 
     elif args.command == 'import-pubkey':
         import_public_key(args.username, args.e, args.n)
+
+    elif args.command == 'list-users':
+        from user_manager import list_users
+        list_users()
 
     elif args.command == 'encrypt':
         if args.pubkey_e and args.pubkey_n:

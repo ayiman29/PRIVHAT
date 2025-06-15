@@ -85,3 +85,18 @@ def import_public_key(username, e, n):
     }
     _save_users(users)
     print(f"[+] Public key for '{username}' saved in users.json.")
+
+def list_users():
+    _ensure_storage()
+    users = _load_users()
+
+    print("\nRegistered users:")
+    if not users:
+        print("  No users found.")
+        return
+
+    for username, data in users.items():
+        priv_path = os.path.join(KEYS_DIR, f"{username}.priv")
+        status = "[local]" if os.path.exists(priv_path) else "[imported]"
+        print(f"  - {username} {status} (Algorithm: {data.get('algorithm', 'unknown')})")
+    print()
