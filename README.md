@@ -85,7 +85,17 @@ Import an RSA public key manually:
 ```bash
 python privhat.py import-pubkey <username> --e <int> --n <int>
 ```
+
+#### 📜 List Users
+
+List all registered users and their key status (local or imported):
+
+```bash
+python privhat.py list-users
+```
+
 ---
+
 
 ### 🔐 Encrypt
 
