@@ -31,7 +31,7 @@ Privhat is a lightweight **command-line cryptography tool** written in Python th
 1. Clone this repository:
 
 ```bash
-git clone https://github.com/yourusername/privhat.git
+git clone https://github.com/ayiman29/privhat.git
 cd privhat
 ````
 
