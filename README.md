@@ -9,7 +9,9 @@
                                                
 ```
 
-Privhat is a lightweight **command-line cryptography tool** written in Python that supports key user management, encryption, decryption, signing, and signature verification with multiple algorithms like RSA, ECC, and ElGamal.
+Privhat is a lightweight command-line cryptography tool written in Python that supports key user management, encryption, decryption, signing, and signature verification with multiple algorithms like RSA, ECC, and ElGamal. All cryptographic functions are self-implemented for educational purposes, providing hands-on insight into the underlying algorithms and processes.
+
+> **Note:** Privhat is a lightweight, educational tool with self-implemented cryptographic algorithms and is **not intended for securing real-world sensitive data**. It lacks the rigorous security audits and protections of established cryptographic libraries. For actual privacy and security needs, please rely on well-vetted tools created by experts so paranoid and skilled that the feds occasionally show up at their door — like OpenGPG or other widely trusted cryptographic software.
 
 ---
 
